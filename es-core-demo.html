@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ES Core - Updated Click Dummy</title>
+    <style>
+        :root {
+            --primary: #6F42C1;
+            --primary-dark: #5A32A3;
+            --accent: #28A745;
+            --neutral: #6C757D;
+            --bg: #f9fbfc;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --inset-shadow: inset 0 2px 4px rgba(0,0,0,0.06);
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background-color: var(--bg); animation: fadeScaleIn 0.5s; }
+        .header { background: linear-gradient(to bottom, white, var(--bg)); padding: 10px; text-align: center; box-shadow: var(--shadow); }
+        .top-nav { display: flex; justify-content: center; background-color: white; padding: 10px 0; position: relative; box-shadow: var(--shadow); }
+        .top-nav ul { list-style: none; padding: 0; margin: 0; display: flex; }
+        .top-nav li { margin: 0 15px; cursor: pointer; padding: 10px 20px; border-radius: 20px; transition: all 0.3s; color: var(--neutral); position: relative; }
+        .top-nav li:hover { background-color: #e9ecef; }
+        .top-nav li.active { color: var(--primary); background-color: white; box-shadow: var(--inset-shadow); font-weight: bold; }
+        .top-nav li.disabled { opacity: 0.5; pointer-events: none; }
+        .top-nav li.disabled:hover { animation: shake 0.3s; }
+        .top-nav li.active::after { content: '✓'; position: absolute; right: 5px; top: 5px; font-size: 12px; color: var(--accent); }
+        .progress-underline { position: absolute; bottom: 0; height: 4px; background: linear-gradient(to right, var(--primary), var(--primary-dark)); transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1), width 0.5s; border-radius: 2px; }
+        .main { max-width: 800px; margin: 20px auto; padding: 20px 20px 100px; } /* Padding for fixed footer */
+        .step { display: none; animation: slideFadeIn 0.4s; }
+        .step.active { display: block; }
+        .card { border-radius: 16px; padding: 16px; margin: 16px 0; background-color: white; box-shadow: var(--shadow); transition: box-shadow 0.2s; }
+        .card:hover { box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+        input, textarea { border-radius: 8px; border: 1px solid #dee2e6; padding: 8px; width: 100%; box-sizing: border-box; transition: border 0.2s; }
+        input:focus, textarea:focus { border-color: var(--primary); }
+        button { background: linear-gradient(var(--primary), var(--primary-dark)); color: white; border: none; padding: 12px 24px; cursor: pointer; border-radius: 24px; box-shadow: var(--shadow); transition: all 0.2s; position: relative; overflow: hidden; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(111,66,193,0.3); }
+        button:active { box-shadow: var(--inset-shadow); }
+        button::after { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; background: rgba(255,255,255,0.2); border-radius: 50%; transform: translate(-50%, -50%); transition: width 0.3s, height 0.3s; }
+        button:active::after { width: 200px; height: 200px; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .fixed-footer { position: fixed; bottom: 0; left: 0; width: 100%; background-color: white; padding: 10px; display: flex; justify-content: space-around; box-shadow: 0 -2px 4px rgba(0,0,0,0.1); z-index: 1000; }
+        .success { color: var(--accent); animation: pulseFade 1s; }
+        @keyframes fadeScaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideFadeIn { from { opacity: 0; transform: translateY(20px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes pulseFade { 0% { opacity: 0; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+        @media (max-width: 768px) { .top-nav ul { flex-wrap: wrap; justify-content: center; } .top-nav li { margin: 5px; padding: 8px 16px; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ES Core</h1>
+    </div>
+    <nav class="top-nav">
+        <ul>
+            <li data-step="1">1. Opportunity Description</li>
+            <li data-step="2">2. Consultant Matching</li>
+            <li data-step="3">3. Refcase Selection</li>
+            <li data-step="4">4. CV Builder</li>
+            <li data-step="5">5. Executive Summary Builder</li>
+            <li data-step="6">6. Completion and Export</li>
+        </ul>
+        <div class="progress-underline" id="progressUnderline"></div>
+    </nav>
+    <div class="main">
+        <div id="step1" class="step active">
+            <h2>Step 1: Opportunity Description</h2>
+            <form>
+                <label>Client Name: <input type="text" placeholder="Enter client name"></label><br>
+                <label>Project Description: <textarea placeholder="Describe the request"></textarea></label><br>
+                <label>Required Skills: <input type="text" placeholder="e.g., Java, AWS"></label><br>
+                <label>Proposal Needed? <input type="checkbox" id="proposalNeeded"></label>
+            </form>
+        </div>
+        <div id="step2" class="step">
+            <h2>Step 2: Consultant Matching</h2>
+            <div class="card">Consultant A - Match: 90% - Available Now</div>
+            <div class="card">Consultant B - Match: 75% - Available in 1 Month</div>
+        </div>
+        <div id="step3" class="step">
+            <h2>Step 3: Refcase Selection (Conditional)</h2>
+            <div class="card">Reference Case 1 - Industry: Finance - Similarity: High</div>
+            <p class="success">References loaded (placeholder).</p>
+        </div>
+        <div id="step4" class="step">
+            <h2>Step 4: CV Builder</h2>
+            <div class="card">Original CV: [Placeholder Text]</div>
+            <div class="card">Tailored CV: [Highlighted Relevant Experience]</div>
+        </div>
+        <div id="step5" class="step">
+            <h2>Step 5: Executive Summary Builder</h2>
+            <textarea placeholder="AI-generated summary..."></textarea>
+        </div>
+        <div id="step6" class="step">
+            <h2>Step 6: Completion and Export</h2>
+            <p class="success">Workflow Complete! Download Proposal.</p>
+            <button id="exportBtn">Export PDF (Placeholder)</button>
+        </div>
+    </div>
+    <div class="fixed-footer">
+        <button id="backBtn" onclick="prevStep(currentStep)">Back</button>
+        <button id="nextBtn" onclick="nextStep(currentStep)">Next</button>
+        <button id="startNewBtn" onclick="resetWorkflow()" style="display: none;">Start New</button>
+    </div>
+    <script>
+        let currentStep = 1;
+        let proposalNeeded = false;
+        const navItems = document.querySelectorAll('.top-nav li');
+        const underline = document.getElementById('progressUnderline');
+        const backBtn = document.getElementById('backBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const startNewBtn = document.getElementById('startNewBtn');
+        const exportBtn = document.getElementById('exportBtn');
+
+        function updateUnderline(step) {
+            const activeItem = navItems[step - 1];
+            const rect = activeItem.getBoundingClientRect();
+            const navRect = document.querySelector('.top-nav').getBoundingClientRect();
+            underline.style.width = `${rect.width}px`;
+            underline.style.left = `${rect.left - navRect.left}px`;
+        }
+
+        function updateButtons(step) {
+            backBtn.disabled = (step === 1);
+            nextBtn.style.display = (step < 6) ? 'inline-block' : 'none';
+            startNewBtn.style.display = (step === 6) ? 'inline-block' : 'none';
+            exportBtn.style.display = (step === 6) ? 'block' : 'none';
+        }
+
+        function showStep(step) {
+            if (step === 3 && !proposalNeeded) {
+                alert('Refcase Selection is skipped as no proposal is needed.');
+                return;
+            }
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`step${step}`).classList.add('active');
+            navItems.forEach((item, i) => item.classList.toggle('active', i + 1 === step));
+            updateUnderline(step);
+            updateButtons(step);
+            currentStep = step;
+        }
+
+        function nextStep(from) {
+            proposalNeeded = document.getElementById('proposalNeeded')?.checked || proposalNeeded;
+            let next = from + 1;
+            if (from === 2 && !proposalNeeded) {
+                next = 4; // Skip Step 3
+                navItems[2].classList.add('disabled');
+                alert('Refcase Selection Skipped (No Proposal Needed)');
+            } else if (from === 3) {
+                next = 4;
+            }
+            if (next <= 6) showStep(next);
+        }
+
+        function prevStep(from) {
+            let prev = from - 1;
+            if (from === 4 && !proposalNeeded) {
+                prev = 2; // Skip back over Step 3
+            }
+            if (prev >= 1) showStep(prev);
+        }
+
+        function resetWorkflow() {
+            showStep(1);
+            proposalNeeded = false;
+            navItems.forEach(item => item.classList.remove('disabled'));
+        }
+
+        // Top nav clicking
+        navItems.forEach(li => {
+            li.addEventListener('click', () => {
+                const step = parseInt(li.dataset.step);
+                if (step <= currentStep && !li.classList.contains('disabled')) showStep(step);
+            });
+        });
+
+        showStep(1); // Initial setup
+    </script>
+</body>
+</html>
